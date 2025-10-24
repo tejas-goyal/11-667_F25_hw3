@@ -47,14 +47,14 @@ def main():
     tokenizer.padding_side = "right"
     tokenizer.pad_token = "<|padding|>"
 
-    train(model, tokenizer, dataset["train"])
-    evaluate(model, tokenizer, dataset["test"])
+    train(model, tokenizer, dataset["train"], device=device)
+    evaluate(model, tokenizer, dataset["test"], device=device)
 
     print("Done!")
 
 
 def evaluate(
-    model: PeftModelForCausalLM, tokenizer: AutoTokenizer, test_dataset: Dataset
+    model: PeftModelForCausalLM, tokenizer: AutoTokenizer, test_dataset: Dataset, device: torch.device
 ):
     test_data = test_dataset.to_pandas()
     test_data["label"] = pd.to_numeric(test_data["label"])
@@ -65,8 +65,8 @@ def evaluate(
     labels_no_calc = []
 
     for prefix in tqdm(test_data["text"]):
-        answer_calc = inference(model, tokenizer, prefix, calculator=True)
-        answer_no_calc = inference(model, tokenizer, prefix, calculator=False)
+        answer_calc = inference(model, tokenizer, prefix, device, calculator=True)
+        answer_no_calc = inference(model, tokenizer, prefix, device, calculator=False)
         generations_calc.append(answer_calc)
         generations_no_calc.append(answer_no_calc)
 
@@ -94,6 +94,7 @@ def train(
     model: PeftModelForCausalLM,
     tokenizer: AutoTokenizer,
     train_dataset: Dataset,
+    device: torch.device,
     grad_acc_steps: int = 1,
     batch_size: int = 32,
     epochs: int = 5,
@@ -134,6 +135,7 @@ def inference(
     model: PeftModelForCausalLM,
     tokenizer: AutoTokenizer,
     prefix: str,
+    device: torch.device,
     calculator: bool = True,
     max_tokens: int = 40,
 ) -> str:
