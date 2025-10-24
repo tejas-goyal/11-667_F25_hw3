@@ -114,7 +114,7 @@ def use_calculator(input: str) -> str:
         start, end = input.rfind("<<"), input.rfind(">>")
         if start == -1 or end == -1 or start >= end:
             return input
-        tocalc = input[start + 1 : end]
+        tocalc = input[start + 2 : end]  # Skip both '<' characters
         res = safe_eval(tocalc)
         return input + str(res)
     except:
