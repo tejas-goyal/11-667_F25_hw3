@@ -142,6 +142,7 @@ def inference(
     for i in range(max_tokens):
         if calculator and can_use_calculator(prefix):
             prefix = use_calculator(prefix)
+            continue  # Skip token generation after using calculator
 
         input_ids = tokenizer(prefix)["input_ids"]
         outputs = model(
